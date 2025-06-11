@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keep it or pass it</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --bg: #0d0d0d;
+            --surface: #171717;
+            --surface-elevated: #202020;
+            --primary: #00ff41;
+            --primary-dim: #00cc33;
+            --text: #ffffff;
+            --text-dim: #a0a0a0;
+            --text-muted: #666666;
+            --border: #2a2a2a;
+            --accent: #ff3366;
+            --warning: #ffb347;
+        }
+        
+        body {
+            font-family: 'Space Grotesk', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            line-height: 1.4;
+        }
+        
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            min-height: 100vh;
+        }
+        
+        .left-panel {
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .right-panel {
+            background: var(--surface);
+            border-left: 1px solid var(--border);
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+        }
+        
+        /* Header */
+        .header {
+            padding: 24px 32px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(20px);
+        }
+        
+        .logo {
+            font-size: 18px;
+            font-weight: 600;
+            text-transform: lowercase;
+        }
+        
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-dim);
+            font-family: 'JetBrains Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        /* Hero Section */
+        .hero {
+            padding: 80px 32px 60px;
+            background: radial-gradient(ellipse at top, rgba(0, 255, 65, 0.05) 0%, transparent 50%);
+            position: relative;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(90deg, transparent 0%, rgba(0, 255, 65, 0.03) 50%, transparent 100%),
+                linear-gradient(0deg, transparent 0%, rgba(0, 255, 65, 0.02) 100%);
+            pointer-events: none;
+        }
+        
+        .hero-content {
+            max-width: 600px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .hero h1 {
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, var(--text) 0%, var(--text-dim) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero p {
+            font-size: 18px;
+            color: var(--text-dim);
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+        
+        .experiment-label {
+            display: inline-block;
+            padding: 6px 12px;
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 12px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 32px;
+        }
+        
+        /* Stats Grid */
+        .stats-section {
+            padding: 60px 32px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .stat-item {
+            background: var(--surface);
+            padding: 32px 24px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Rules Section */
+        .rules-section {
+            padding: 60px 32px;
+            background: var(--surface);
+        }
+        
+        .rules-header {
+            margin-bottom: 40px;
+        }
+        
+        .rules-header h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        
+        .rules-subtitle {
+            color: var(--text-dim);
+            font-size: 16px;
+        }
+        
+        .rules-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .rule {
+            display: flex;
+            gap: 16px;
+            padding: 20px;
+            border-radius: 8px;
+            background: var(--surface-elevated);
+            border-left: 3px solid var(--primary);
+        }
+        
+        .rule-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary);
+            min-width: 20px;
+        }
+        
+        .rule-text {
+            font-size: 15px;
+            line-height: 1.5;
+        }
+        
+        /* Token Control Panel */
+        .control-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .control-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .control-subtitle {
+            font-size: 14px;
+            color: var(--text-dim);
+        }
+        
+        .token-display {
+            padding: 40px 24px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .token {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            animation: tokenFloat 4s ease-in-out infinite;
+            overflow: hidden;
+        }
+        
+        .token img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .token::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 50%;
+            z-index: -1;
+            animation: tokenRotate 8s linear infinite;
+        }
+        
+        .timer {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 32px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+        
+        .timer-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .holder-info {
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .holder-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+        
+        .holder-address {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            color: var(--text-dim);
+            word-break: break-all;
+            background: var(--surface-elevated);
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+        }
+        
+        .controls {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex: 1;
+        }
+        
+        .btn {
+            padding: 16px 24px;
+            border: none;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: var(--bg);
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dim);
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: var(--surface-elevated);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+        
+        .risk-warning {
+            margin-top: auto;
+            padding: 16px;
+            background: rgba(255, 51, 102, 0.1);
+            border: 1px solid rgba(255, 51, 102, 0.2);
+            border-radius: 8px;
+            font-size: 12px;
+            color: var(--accent);
+            text-align: center;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        @keyframes tokenFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+        
+        @keyframes tokenRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .right-panel {
+                position: relative;
+                height: auto;
+                border-left: none;
+                border-top: 1px solid var(--border);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .hero {
+                padding: 40px 20px;
+            }
+            
+            .stats-section, .rules-section {
+                padding: 40px 20px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .header {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-grid">
+        <div class="left-panel">
+            <div class="header">
+                <div class="logo">Pumpfun Aggregator / CA HERE</div>
+                <div class="status">
+                    <div class="status-dot"></div>
+                    <span>live</span>
+                </div>
+            </div>
+            
+            <div class="hero">
+                <div class="hero-content">
+                    <div class="experiment-label">@</div>
+                    <h1>Keep it or Pass it</h1>
+                    <p>One token exists. Hold it for 5 minutes untouched and face the ultimate choice: claim massive rewards or lose everything. Every transfer resets the clock.</p>
+                </div>
+            </div>
+            
+            <div class="stats-section">
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value">13</div>
+                        <div class="stat-label">Transfers</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">00:52</div>
+                        <div class="stat-label">Avg Hold</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">21</div>
+                        <div class="stat-label">Players</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">4.43SOL</div>
+                        <div class="stat-label">Reward Pool</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="rules-section">
+                <div class="rules-header">
+                    <h2>How it works</h2>
+                    <p class="rules-subtitle">Simple rules, complex psychology</p>
+                </div>
+                <div class="rules-list">
+                    <div class="rule">
+                        <div class="rule-number">01</div>
+                        <div class="rule-text">One token exists in the ecosystem. You either hold it or you don't.</div>
+                    </div>
+                    <div class="rule">
+                        <div class="rule-number">02</div>
+                        <div class="rule-text">Transfer to another player or hold. Every action resets the 5-minute countdown.</div>
+                    </div>
+                    <div class="rule">
+                        <div class="rule-number">03</div>
+                        <div class="rule-text">If untouched for 5 minutes, the holder faces a binary choice with unknown odds.</div>
+                    </div>
+                    <div class="rule">
+                        <div class="rule-number">04</div>
+                        <div class="rule-text">Mint the entire reward pool or lose everything. The outcome is determined by cryptographic randomness.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="right-panel">
+            <div class="control-header">
+                <div class="control-title">Token Status</div>
+                <div class="control-subtitle">Currently in play</div>
+            </div>
+            
+            <div class="token-display">
+                <div class="token">
+                    <img src="Progetto senza titolo (1).png" alt="Token Logo">
+                </div>
+                <div class="timer" id="timer">04:23</div>
+                <div class="timer-label">Time Remaining</div>
+            </div>
+            
+            <div class="holder-info">
+                <div class="holder-label">Current Holder</div>
+                <div class="holder-address" id="holder">d2a12...a0Acl4</div>
+            </div>
+            
+            <div class="controls">
+                <button class="btn btn-primary" onclick="keepToken()">Hold Token</button>
+                <button class="btn btn-secondary" onclick="passToken()">Transfer Token</button>
+                
+                <div class="risk-warning">
+                    High risk, high reward experiment. Participate responsibly.
+                </div>
+            </div>
+
+    
+    <script>
+        let timeLeft = 263;
+        let timerInterval;
+        
+        function updateTimer() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            const timerElement = document.getElementById('timer');
+            timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeLeft <= 30) {
+                timerElement.style.color = 'var(--accent)';
+            } else if (timeLeft <= 120) {
+                timerElement.style.color = 'var(--warning)';
+            }
+            
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                timerElement.textContent = '00:00';
+                showDecisionTime();
+                return;
+            }
+            
+            timeLeft--;
+        }
+        
+        function startTimer() {
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+        
+        function resetTimer() {
+            timeLeft = 300;
+            document.getElementById('timer').style.color = 'var(--text)';
+        }
+        
+        function keepToken() {
+            const token = document.querySelector('.token');
+            token.style.transform = 'scale(1.05)';
+            setTimeout(() => token.style.transform = 'scale(1)', 150);
+        }
+        
+        function passToken() {
+            resetTimer();
+            updateHolder();
+            updateStats();
+            
+            const token = document.querySelector('.token');
+            token.style.animation = 'none';
+            token.style.transform = 'translateX(200px) rotate(180deg)';
+            token.style.opacity = '0';
+            
+            setTimeout(() => {
+                token.style.transform = 'translateX(-200px) rotate(180deg)';
+            }, 200);
+            
+            setTimeout(() => {
+                token.style.transform = 'translateX(0) rotate(0deg)';
+                token.style.opacity = '1';
+                token.style.animation = 'tokenFloat 4s ease-in-out infinite';
+            }, 400);
+        }
+        
+        function updateHolder() {
+            const addresses = [
+  '4xRaW...p9HdQ',
+  '9vKs3...LmA27',
+  'Dk7eP...ZxTq4',
+  'Bc39a...L8sHg',
+  'Fa82W...Cm5Yz',
+  'HqR1k...WqU0d',
+  '2nLxF...RwJq3',
+  '7YkzN...Mp0eL',
+  'TqW4c...fP3kJ',
+  '5LpXr...VeK8s',
+  'Qd3aX...nMcF2',
+  '8UzPh...Ra21X',
+  'Jkz42...9FsEy',
+  'Mnxp3...qvUD7'
+            ];
+            const randomAddress = addresses[Math.floor(Math.random() * addresses.length)];
+            document.getElementById('holder').textContent = randomAddress;
+        }
+        
+        function updateStats() {
+            const transfersElement = document.querySelector('.stat-value');
+            let current = parseFloat(transfersElement.textContent.replace('K', '')) * 1000;
+            transfersElement.textContent = ((current + 1) / 1000).toFixed(1) + 'K';
+        }
+        
+        function showDecisionTime() {
+            alert('Time is up! The holder must now choose their fate.');
+        }
+        
+        startTimer();
+    </script>
+</body>
+</html>
